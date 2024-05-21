@@ -30,6 +30,9 @@ public class Event {
     @Column(name = "location", columnDefinition = "VARCHAR(255)")
     private String location;
 
+    @Column(name = "event_img", columnDefinition = "LONGTEXT")
+    private String eventImg;
+
     // Getters and Setters
     public int getEventId() {
         return eventId;
@@ -77,5 +80,13 @@ public class Event {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getEventImg() {
+        return eventImg;
+    }
+
+    public void setEventImg(String eventImg) {
+        this.eventImg = eventImg;
     }
 }

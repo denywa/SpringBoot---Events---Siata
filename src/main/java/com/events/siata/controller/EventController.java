@@ -8,9 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map; // Added import for Map
 
 @CrossOrigin(origins = "http://localhost:3306")
 @RestController
@@ -21,8 +20,16 @@ public class EventController {
     private EventService eventService;
 
     @GetMapping
-    public List<Event> getAllEvents() {
-        return eventService.getAllEvents();
+    public ResponseEntity<List<Event>> getAllEvents() {
+        try {
+            List<Event> events = eventService.getAllEvents();
+            if (events.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{id}")
@@ -32,29 +39,34 @@ public class EventController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<Map<String, String>> createEvent(@RequestBody EventDTO eventDTO) {
-        Event event = new Event();
-        event.setEventName(eventDTO.getEventName());
-        event.setEventDescription(eventDTO.getEventDescription());
-        event.setEventDate(eventDTO.getEventDate());
-        event.setEventTime(eventDTO.getEventTime());
-        event.setLocation(eventDTO.getLocation());
-        eventService.saveEvent(event);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Event created successfully");
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    @PostMapping(consumes = { "application/json" })
+    public ResponseEntity<?> createEvent(@RequestBody EventDTO eventDTO) {
+        try {
+            Event event = new Event();
+            event.setEventName(eventDTO.getEventName());
+            event.setEventDescription(eventDTO.getEventDescription());
+            event.setEventDate(eventDTO.getEventDate());
+            event.setEventTime(eventDTO.getEventTime());
+            event.setLocation(eventDTO.getLocation());
+            event.setEventImg(eventDTO.getEventImg()); // Base64 string
+            eventService.saveEvent(event);
+            return new ResponseEntity<>(Map.of("message", "Event created successfully"), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("message", "Event creation failed: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+    
 
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable int id, @RequestBody Event eventDetails) {
+    public ResponseEntity<Event> updateEvent(@PathVariable int id, @RequestBody EventDTO eventDTO) {
         return eventService.getEventById(id)
             .map(event -> {
-                event.setEventName(eventDetails.getEventName());
-                event.setEventDescription(eventDetails.getEventDescription());
-                event.setEventDate(eventDetails.getEventDate());
-                event.setEventTime(eventDetails.getEventTime());
-                event.setLocation(eventDetails.getLocation());
+                event.setEventName(eventDTO.getEventName());
+                event.setEventDescription(eventDTO.getEventDescription());
+                event.setEventDate(eventDTO.getEventDate());
+                event.setEventTime(eventDTO.getEventTime());
+                event.setLocation(eventDTO.getLocation());
+                event.setEventImg(eventDTO.getEventImg()); // Base64 string
                 Event updatedEvent = eventService.saveEvent(event);
                 return ResponseEntity.ok(updatedEvent);
             }).orElse(ResponseEntity.notFound().build());
@@ -62,7 +74,11 @@ public class EventController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable int id) {
-        eventService.deleteEvent(id);
-        return ResponseEntity.noContent().build();
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
