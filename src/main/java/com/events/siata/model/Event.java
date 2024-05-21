@@ -13,28 +13,29 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
-    private Long eventId;
+    private int eventId;
 
-    @Column(name = "event_name")
+    @Column(name = "event_name", columnDefinition = "VARCHAR(255)")
     private String eventName;
 
-    @Column(name = "event_description")
+    @Column(name = "event_description", columnDefinition = "TEXT")
     private String eventDescription;
 
-    @Column(name = "event_date")
+    @Column(name = "event_date", columnDefinition = "DATE")
     private String eventDate;
 
-    @Column(name = "event_time")
+    @Column(name = "event_time", columnDefinition = "TIME")
     private String eventTime;
 
-    @Column(name = "location")
+    @Column(name = "location", columnDefinition = "VARCHAR(255)")
     private String location;
+
     // Getters and Setters
-    public Long getEventId() {
+    public int getEventId() {
         return eventId;
     }
 
-    public void setEventId(Long eventId) {
+    public void setEventId(int eventId) {
         this.eventId = eventId;
     }
 
