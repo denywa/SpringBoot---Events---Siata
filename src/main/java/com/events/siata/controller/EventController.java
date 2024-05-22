@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
-import java.util.Map; // Added import for Map
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3306")
 @RestController
@@ -48,7 +49,9 @@ public class EventController {
             event.setEventDate(eventDTO.getEventDate());
             event.setEventTime(eventDTO.getEventTime());
             event.setLocation(eventDTO.getLocation());
-            event.setEventImg(eventDTO.getEventImg()); // Base64 string
+            // Remove the prefix and decode the Base64 string
+            byte[] decodedBytes = Base64.getDecoder().decode(eventDTO.getEventImg().split(",")[1]);
+            event.setEventImg(decodedBytes);
             eventService.saveEvent(event);
             return new ResponseEntity<>(Map.of("message", "Event created successfully"), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -66,7 +69,9 @@ public class EventController {
                 event.setEventDate(eventDTO.getEventDate());
                 event.setEventTime(eventDTO.getEventTime());
                 event.setLocation(eventDTO.getLocation());
-                event.setEventImg(eventDTO.getEventImg()); // Base64 string
+                // Remove the prefix and decode the Base64 string
+                byte[] decodedBytes = Base64.getDecoder().decode(eventDTO.getEventImg().split(",")[1]);
+                event.setEventImg(decodedBytes);
                 Event updatedEvent = eventService.saveEvent(event);
                 return ResponseEntity.ok(updatedEvent);
             }).orElse(ResponseEntity.notFound().build());

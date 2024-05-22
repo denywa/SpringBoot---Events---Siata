@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Lob;
 
 @Entity
 @Table(name = "events")
@@ -30,8 +31,9 @@ public class Event {
     @Column(name = "location", columnDefinition = "VARCHAR(255)")
     private String location;
 
-    @Column(name = "event_img", columnDefinition = "LONGTEXT")
-    private String eventImg;
+    @Lob
+    @Column(name = "event_img", columnDefinition = "MEDIUMBLOB")
+    private byte[] eventImg;  // Changed type to byte[] to properly store BLOB data
 
     // Getters and Setters
     public int getEventId() {
@@ -82,11 +84,11 @@ public class Event {
         this.location = location;
     }
 
-    public String getEventImg() {
+    public byte[] getEventImg() {
         return eventImg;
     }
 
-    public void setEventImg(String eventImg) {
+    public void setEventImg(byte[] eventImg) {
         this.eventImg = eventImg;
     }
 }
