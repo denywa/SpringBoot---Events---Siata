@@ -15,7 +15,13 @@ document.addEventListener("DOMContentLoaded", function () {
         eventList.innerHTML = "";
         events.forEach((event) => {
           const li = document.createElement("li");
-          li.textContent = `${event.eventName} - ${event.eventDescription} - ${event.eventDate} - ${event.eventTime} - ${event.location} - ${event.eventImg}`;
+          const img = document.createElement("img");
+          img.src = `data:image/jpeg;base64,${event.eventImg}`; // Set image source to the Base64 string with proper prefix for display
+          img.alt = "Event Image";
+          img.style.maxWidth = "200px"; // Set a max width for the image for better visibility
+          img.style.margin = "10px"; // Add margin for spacing
+          li.textContent = `${event.eventName} - ${event.eventDescription} - ${event.eventDate} - ${event.eventTime} - ${event.location}`;
+          li.appendChild(img); // Append the image to the list item
           eventList.appendChild(li);
         });
       })
@@ -29,10 +35,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const formData = new FormData(eventForm);
     const file = imgInput.files[0];
 
-    // Validasi ukuran file
+    // Validate file size
     if (file.size > 5000000) {
-      // Batas ukuran file 5MB
-      alert("Ukuran gambar terlalu besar. Harap unggah gambar yang lebih kecil dari 5MB.");
+      // File size limit is 5MB
+      alert("Image size is too large. Please upload an image smaller than 5MB.");
       return;
     }
 
@@ -40,14 +46,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     reader.readAsDataURL(file);
     reader.onload = function () {
-      formData.set("eventImg", reader.result); // Simpan gambar sebagai string Base64
+      formData.set("eventImg", reader.result); // Save image as a Base64 string
 
       const jsonData = {};
       formData.forEach((value, key) => {
         jsonData[key] = value;
       });
 
-      // Pastikan gambar sudah terkodekan dalam Base64 sebelum mengirim
+      // Ensure the image is encoded in Base64 before sending
       if (reader.result && reader.result.startsWith("data:image")) {
         fetch("/api/events", {
           method: "POST",
@@ -74,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("There has been a problem with your fetch operation:", error);
           });
       } else {
-        console.error("Gagal memuat gambar sebagai string Base64.");
+        console.error("Failed to load image as a Base64 string.");
       }
     };
   });
